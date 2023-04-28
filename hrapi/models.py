@@ -18,7 +18,7 @@ class Employee(models.Model):
     email = models.EmailField(max_length=254, unique=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True)
     date_of_birth = models.DateField()
-    industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
+    industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True)
     salary = models.DecimalField(decimal_places=2, max_digits=10)
     years_of_experience = models.IntegerField()
 

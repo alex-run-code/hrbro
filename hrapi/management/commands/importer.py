@@ -24,7 +24,7 @@ class Command(BaseCommand):
         df = df.where(pd.notnull(df), None)
         for index, employee in df.iterrows():
 
-            if employee['industry']:
+            if employee['industry'] not in [None, 'n/a']:
                 industry, _ = Industry.objects.get_or_create(
                     name=employee['industry']
                 )

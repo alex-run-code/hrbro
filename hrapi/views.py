@@ -1,35 +1,14 @@
+import json
+import math
+
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from hrapi.models import Employee, Industry
 from hrapi.serializers import EmployeeSerializer, IndustrySerializer
 import pandas as pd
+import numpy as np
 from datetime import datetime
-
-# ModelViewSet is super strong. But sometimes it's not what we want
-# for example :
-#
-# Custom functionality: Sometimes we need to implement custom
-# functionality that is not provided by ModelViewSet. For example,
-# if we want to implement a search functionality for a specific field
-# in the model, we may need to use a custom view that provides this
-# functionality.
-#
-# Performance: ModelViewSet can be slower than other views in
-# some cases, especially when dealing with large datasets or
-# complex queries. In such cases, we may need to use other
-# views that provide better performance.
-#
-# Security: ModelViewSet assumes that all CRUD operations
-# are allowed for all users. If we need to implement more
-# fine-grained permissions or authentication, we may need
-# to use other views that provide this functionality.
-#
-# Flexibility: ModelViewSet is a generic view that provides
-# a standard set of functionality for CRUD operations. If
-# we need to implement more complex or specific functionality,
-# we may need to use other views that provide more flexibility
-# and customization options.
 
 
 class EmployeeViewSet(ModelViewSet):
@@ -115,7 +94,7 @@ class YoEStats(APIView):
         return Response(response_data)
 
 
-class Agism(APIView):
+class AgeStats(APIView):
 
     def get(self, request):
         employees = Employee.objects.all()
@@ -146,7 +125,7 @@ class Agism(APIView):
         return Response(response_data)
 
 
-class Sexism(APIView):
+class GenderStats(APIView):
 
     def get(self, request):
 
@@ -156,38 +135,20 @@ class Sexism(APIView):
         year_bins = [0, 5, 10, 15, 20, 30, float('inf')]
 
         # Drop gender column before grouping by gender and years_of_experience bins
-        result = df.drop('gender', axis=1)\
-            .groupby([df['gender'], pd.cut(df['years_of_experience'], year_bins)])[
+        result = df.groupby([df['gender'], pd.cut(df['years_of_experience'], year_bins)])[
             'salary'].mean()
         result = result.reset_index()
 
+        # just for the eyes
         result['years_of_experience'] = result['years_of_experience'].astype(str)\
             .str.replace('(', '').str.replace(']', '').str.replace(',', ' to')
 
         # Group by gender again to create separate sections for males and females
         result = result.groupby('gender')\
-            .apply(lambda x: x.drop('gender', axis=1)
-                   .to_dict(orient='records')).to_dict()
+            .apply(
+            lambda x: x.drop('gender', axis=1).to_dict()
+        ).to_dict()
 
         return Response(result)
 
-
-# Average age per industry - done
-# Average salaries per industry - done
-# Average salaries per years of experience - done
-# Based on the dataset, other “interesting” statistics
-
-
-# Do old people with same amount of YoE earn less money ?
-# Get people aged 20-30 (Young)
-# Get people aged 30-40 (Old)
-# Get average Young earning per YoE
-# Get average Old earning per YoE
-
-
-# Do women with same amount of YoE earn less money ?
-# What industry is the most profitable ?
-# What industry offer the fastest career growth ?
-# What industry attract younger people ?
-# What industry attract more women ?
 
