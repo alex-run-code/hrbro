@@ -1,0 +1,2 @@
+CREATE USER hrboss WITH PASSWORD 'securepassword';
+GRANT ALL PRIVILEGES ON DATABASE hrbrodb TO hrboss;
