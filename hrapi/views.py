@@ -128,7 +128,6 @@ class AgeStats(APIView):
 class GenderStats(APIView):
 
     def get(self, request):
-
         employees = Employee.objects.all()
         df = pd.DataFrame(employees.values())
 
@@ -146,7 +145,7 @@ class GenderStats(APIView):
         # Group by gender again to create separate sections for males and females
         result = result.groupby('gender')\
             .apply(
-            lambda x: x.drop('gender', axis=1).to_dict()
+            lambda x: x.drop('gender', axis=1).to_dict(orient='records')
         ).to_dict()
 
         return Response(result)
